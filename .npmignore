@@ -1,0 +1,9 @@
+.npmrc
+node_modules
+webpack.config.js
+development
+src/js/test.ts
+src/scss/test.scss
+dist/test.d.ts
+dist/test.js
+dist/test.css

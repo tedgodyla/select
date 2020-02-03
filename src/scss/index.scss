@@ -1,0 +1,49 @@
+.select {
+  position: relative;
+  display: inline-block;
+
+  &__label {
+    line-height: 1em;
+    position: relative;
+    z-index: 1;
+    display: block;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  &__select {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+
+  &__dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    z-index: 3;
+    overflow: auto;
+    max-height: 12em;
+
+    & > label {
+      display: block;
+      white-space: nowrap;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    & > input:checked + label {
+      font-weight: 700;
+    }
+  }
+
+  &.is-open {
+    .select__dropdown {
+      display: block;
+    }
+  }
+}

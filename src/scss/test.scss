@@ -1,0 +1,45 @@
+@import 'index.scss';
+
+html {
+  font-family: Helvetica, sans-serif;
+}
+
+.select {
+  box-sizing: border-box;
+
+  &__label {
+    padding: 0.5em 0.75em;
+    border: #ccc solid 1px;
+    border-radius: 0.25em;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  &__dropdown {
+    max-width: 300px;
+    padding: 0.25em 0;
+    border: #ccc solid 1px;
+    border-radius: 0.25em;
+    background: #fff;
+    top: calc(100% - 1px);
+    box-sizing: border-box;
+
+    & > label {
+      padding: 0.5em 0.75em;
+      line-height: 1em;
+      max-width: 100%;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        background: #eee;
+      }
+    }
+
+    & > input:checked + label {
+      background: #eee;
+    }
+  }
+}
