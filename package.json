@@ -4,18 +4,20 @@
   "description": "Stylable select component",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "author": "Ted Godyla <tedgodyla@gmail.com",
+  "license": "ISC",
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
     "deploy": "webpack && npm publish"
   },
   "keywords": [
-    "typescript",
-    "github packages",
-    "npm packages"
+    "select",
+    "styleable",
+    "component",
+    "javascript",
+    "CSS"
   ],
-  "author": "Ted Godyla",
-  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tedgodyla/select.git"
@@ -36,9 +38,6 @@
   "dependencies": {
     "animejs": "^3.1.0",
     "is-mobile": "^2.1.0"
-  },
-  "engines": {
-    "node": ">=8"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@tedgodyla"

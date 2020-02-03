@@ -1,4 +1,4 @@
-import VVSelect from './index';
+import VVSelect from 'scripts/index';
 
 const selectElems: Array<HTMLElement> = Array.from(document.querySelectorAll('.select'));
 

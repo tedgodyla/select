@@ -1,3 +1,9 @@
+/*!
+ * VVSelect
+ * (c) 2020 Ted Godyla
+ * Released under the ISC license
+ */
+
 /** ----------------------------------------
     Imports
 ---------------------------------------- */
