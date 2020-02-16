@@ -4,12 +4,16 @@
   "description": "Stylable select component",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "src/index.ts",
   "author": "Ted Godyla <tedgodyla@gmail.com",
   "license": "ISC",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "watch": "webpack --watch",
-    "deploy": "webpack && npm publish"
+    "deploy": "webpack && npm publish",
+    "prepare": "npm run build",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "select",
@@ -18,10 +22,17 @@
     "javascript",
     "CSS"
   ],
+  "files": [
+    "dist/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tedgodyla/select.git"
   },
+  "bugs": {
+    "url": "https://github.com/tedgodyla/select/issues"
+  },
+  "homepage": "https://github.com/tedgodyla/select#readme",
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.4.2",

@@ -4,10 +4,36 @@ html {
   font-family: Helvetica, sans-serif;
 }
 
+body {
+  padding: 2em;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+
+  @media only screen and (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.column {
+  width: 25%;
+
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+}
+
+.status {
+  margin-top: 1rem;
+}
+
 .select {
   box-sizing: border-box;
 
-  &__label {
+  &__trigger {
     padding: 0.5em 0.75em;
     border: #ccc solid 1px;
     border-radius: 0.25em;
@@ -23,23 +49,35 @@ html {
     background: #fff;
     top: calc(100% - 1px);
     box-sizing: border-box;
+  }
 
-    & > label {
-      padding: 0.5em 0.75em;
-      line-height: 1em;
-      max-width: 100%;
-      box-sizing: border-box;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+  &__dropdown-option {
+    padding: 0.5em 0.75em 0.5em 1.5em;
+    line-height: 1em;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
-      &:hover {
-        background: #eee;
-      }
+    &::before {
+      content: '✓';
+      opacity: 0;
+      position: absolute;
+      width: 1em;
+      height: 1em;
+      transform: translateX(-1em);
     }
 
-    & > input:checked + label {
+    &:focus {
       background: #eee;
+      outline: none;
+    }
+
+    &[data-selected] {
+      &::before {
+        opacity: 1;
+      }
     }
   }
 }

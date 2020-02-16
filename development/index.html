@@ -8,20 +8,84 @@
     <title>Development</title>
 </head>
 <body>
-    <div class="select">
-        <label class="select__label">...</label class="select__label" >
-        <select class="select__select" name="name" multiple>
-            <option value="1">Optie 1 Optie 1 Optie 1 Optie 1 Optie 1 Optie 1</option>
-            <option value="2">Optie 2</option>
-            <option value="3">Optie 3</option>
-            <option value="4">Optie 4</option>
-            <option value="5">Optie 5</option>
-            <option value="6">Optie 6</option>
-            <option value="7">Optie 7</option>
-            <option value="8">Optie 8</option>
-            <option value="9">Optie 9</option>
-        </select>
+    <div class="container">
+        <div class="column">
+            <div class="select" id="multiSelect">
+                <a class="select__trigger" href="javascript:;">...</a>
+                <select class="select__select" multiple>
+                    <option value="1">Drenthe</option>
+                    <option value="2">Flevoland</option>
+                    <option value="3">Friesland</option>
+                    <option value="4">Gelderland</option>
+                    <option value="5">Groningen</option>
+                    <option value="6" disabled>Limburg</option>
+                    <option value="7">Noord-Branbant</option>
+                    <option value="8">Noord-Holland</option>
+                    <option value="9">Overijsel</option>
+                    <option value="10">Utrecht</option>
+                    <option value="11">Zeeland</option>
+                    <option value="12">Zuid-Holland</option>
+                </select>
+            </div>
+            <div class="status" id="multiStatus"></div>
+        </div>
+
+        <div class="column">
+            <div class="select" id="singleSelect">
+                <a class="select__trigger" href="javascript:;">...</a>
+                <select class="select__select">
+                    <option value="1">Drenthe</option>
+                    <option value="2">Flevoland</option>
+                    <option value="3">Friesland</option>
+                    <option value="4">Gelderland</option>
+                    <option value="5">Groningen</option>
+                    <option value="6" disabled>Limburg</option>
+                    <option value="7">Noord-Branbant</option>
+                    <option value="8">Noord-Holland</option>
+                    <option value="9">Overijsel</option>
+                    <option value="10">Utrecht</option>
+                    <option value="11">Zeeland</option>
+                    <option value="12">Zuid-Holland</option>
+                </select>
+            </div>
+            <div class="status" id="singleStatus"></div>
+        </div>
+
+        <div class="column">
+            <select>
+                <option value="1">Drenthe</option>
+                <option value="2">Flevoland</option>
+                <option value="3">Friesland</option>
+                <option value="4">Gelderland</option>
+                <option value="5">Groningen</option>
+                <option value="6" disabled>Limburg</option>
+                <option value="7">Noord-Branbant</option>
+                <option value="8">Noord-Holland</option>
+                <option value="9">Overijsel</option>
+                <option value="10">Utrecht</option>
+                <option value="11">Zeeland</option>
+                <option value="12">Zuid-Holland</option>
+            </select>
+        </div>
+
+        <div class="column">
+            <select multiple>
+                <option value="1">Drenthe</option>
+                <option value="2">Flevoland</option>
+                <option value="3">Friesland</option>
+                <option value="4">Gelderland</option>
+                <option value="5">Groningen</option>
+                <option value="6" disabled>Limburg</option>
+                <option value="7">Noord-Branbant</option>
+                <option value="8">Noord-Holland</option>
+                <option value="9">Overijsel</option>
+                <option value="10">Utrecht</option>
+                <option value="11">Zeeland</option>
+                <option value="12">Zuid-Holland</option>
+            </select>
+        </div>
     </div>
+
     <script src="./dist/index.js"></script>
 </body>
 </html>

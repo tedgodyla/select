@@ -4,15 +4,26 @@
  * Released under the ISC license
  */
 
-/** ----------------------------------------
-    Imports
----------------------------------------- */
-
 import { isMobile } from 'is-mobile';
 
-/** ----------------------------------------
-    Export Class
----------------------------------------- */
+interface VVSelectSettings {
+    dropdownClass: string;
+    dropdownOptionClass: string;
+    openClass: string;
+    multipleSelectedFormat: string;
+    multipleFormat: string;
+    singleSelectedFormat: string;
+    singleFormat: string;
+    onInitialize: Function;
+    onOpen: Function;
+    onClose: Function;
+    onChange: Function;
+}
+
+enum FocusDirection {
+    prev = -1,
+    next = 1,
+}
 
 export default class VVSelect {
 
@@ -21,66 +32,95 @@ export default class VVSelect {
     ---------------------------------------- */
 
     private element: HTMLElement;
-    private label: HTMLLabelElement;
-    private select: HTMLSelectElement|null;
-    private dropdown: HTMLDivElement|null;
-    private options: Array<HTMLOptionElement>|null;
-    private inputs: Array<HTMLInputElement>|null;
-    private name: string;
-    private useSelect: boolean;
+    private trigger: HTMLElement;
+    private select: HTMLSelectElement;
+    private selectObserver: MutationObserver;
+    private options: Array<HTMLOptionElement>;
+    private dropdown: HTMLDivElement;
+    private dropdownOptions: Array<HTMLAnchorElement>;
+    private dropdownOptionsMap: Map<HTMLAnchorElement, HTMLOptionElement> = new Map()
+    private searchTime: number = (new Date()).getTime();
+    private searchTimeout: number = 2000; // 2 seconds
+    private searchString: string = '';
+    private useDropdown: boolean;
     private multiple: boolean;
     private autofocus: boolean;
     private disabled: boolean;
     private isOpen: boolean = false;
+    private keydown: boolean = false;
+    private initialized: boolean = false;
 
-    private settings: object;
-    private defaultSettings: object = {
-        dropdownClass: 'select__dropdown',              // dropdown class
-        openClass: 'is-open',                           // open class
-        multipleSelectedFormat: "%s geselecteerd",      // label format for multiple select with selected values
-        multipleFormat: "Selecteer opties",             // label format for multiple select without selectes values
-        singleSelectedFormat: "%s",                     // label format for single select with selected value
-        singleFormat: "Maak een keuze",                 // label format for single select without selected value
+    private settings: VVSelectSettings;
+    
+    readonly defaultSettings: VVSelectSettings = {
+        dropdownClass: 'select__dropdown',
+        dropdownOptionClass: 'select__dropdown-option',
+        openClass: 'is-open',
+        multipleSelectedFormat: "%s selected",
+        multipleFormat: "Select options",
+        singleSelectedFormat: "%s",
+        singleFormat: "Choose an option",
+        onInitialize: () => {},
+        onOpen: () => {},
+        onClose: () => {},
+        onChange: () => {},
     }
 
     /** ----------------------------------------
         Constructor
     ---------------------------------------- */
 
-    constructor(element: HTMLElement, settings: Object = {})
+    constructor(element: HTMLElement, settings: object = {}, initializeOnConstruct: boolean = true)
     {
         this.element = element;
-        this.settings = {...this.defaultSettings, ...settings }
+
+        Object.keys(this.defaultSettings).forEach(key => {
+            if (this.element.dataset[key]) settings[key] = this.element.dataset[key];
+        });
+
+        this.settings = {...this.defaultSettings, ...settings };
 
         this.handleDocumentClick = this.handleDocumentClick.bind(this);
 
-        this.label = element.querySelector('label');
+        this.trigger = element.querySelector('a');
         this.select = element.querySelector('select');
         this.options = Array.from(element.querySelectorAll('option'));
 
-        this.useSelect = isMobile({ tablet: true });
+        this.useDropdown = !isMobile({ tablet: true });
         this.multiple = this.select.multiple;
-        this.name = this.select.name;
         this.autofocus = this.select.autofocus;
         this.disabled = this.select.disabled;
 
-        if (!this.useSelect) {
-            this.addDropdown();
-            this.addInputs();
-            this.removeSelect();
-            this.addInputEvents();
-            this.addTriggerEvent();
+        if (initializeOnConstruct)
+            this.init();
+    }
 
+    /** ----------------------------------------
+        Initialize
+    ---------------------------------------- */
+
+    public init() 
+    {
+        if (this.useDropdown) {
+            this.addDropdownNode();
+            this.createDropdownOptionNodes();
+            this.updateSelectStyling();
+            this.addDropdownOptionEvents();
+            this.addTriggerEvent();
+            this.addDropdownEvent();
+            
             if (this.autofocus && !this.disabled) {
-                this.label.click();
+                this.trigger.click();
             }
-        } else {
-            this.addSelectEvent();
         }
 
-        this.updateLabel();
+        this.addSelectEvent();
+        this.updateTriggerText();
+        this.createSelectObserver();
 
         this.element.classList.add('initialized');
+        this.initialized = true;
+        this.settings.onInitialize();
     }
 
     /** ----------------------------------------
@@ -92,15 +132,9 @@ export default class VVSelect {
      */
     get value(): Array<string>|string
     {
-        const values = this.getSelectedOptions().map(element => {
-            return element.value;
-        });
+        const values = this.getSelectedOptions().map(element => element.value);
 
-        if (this.multiple) {
-            return values;
-        } else {
-            return (values[0]) ? values[0] : '';
-        }
+        return (this.multiple) ? values : (values.length === 1 ) ? values[0] : '';
     }
 
     /*
@@ -108,24 +142,46 @@ export default class VVSelect {
      */
     set value(values: Array<string>|string)
     {
-        if (typeof values === 'string') {
+        if (typeof values === 'string')
             values = [values];
-        }
 
-        if (this.useSelect) {
-            this.options.forEach(option => {
-                option.selected = values.includes(option.value);
-            });
-            this.select.dispatchEvent(new Event('change'));
-        } else {
-            this.inputs.forEach(input => {
-                input.checked = values.includes(input.value);
-            });
+        this.options.forEach(option => {
+            option.selected = values.includes(option.value);
+        });
+        
+        this.select.dispatchEvent(new Event('change'));
+    }
 
-            if (this.inputs[0]) {
-                this.inputs[0].dispatchEvent(new Event('change'));
-            }
-        }
+    /*
+     * Set on intialized function
+     */
+    set onInitialize(fn: Function)
+    {
+        this.settings.onInitialize = fn;
+    }
+
+    /*
+     * Set on intialized function
+     */
+    set onChange(fn: Function)
+    {
+        this.settings.onChange = fn;
+    }
+
+    /*
+     * Set on intialized function
+     */
+    set onOpen(fn: Function)
+    {
+        this.settings.onOpen = fn;
+    }
+
+    /*
+     * Set on intialized function
+     */
+    set onClose(fn: Function)
+    {
+        this.settings.onClose = fn;
     }
 
     /** ----------------------------------------
@@ -141,7 +197,14 @@ export default class VVSelect {
 
         this.element.classList.add(this.settings['openClass']);
 
+        if (this.dropdownOptions.length) {
+            this.dropdownOptions[0].focus();
+            this.focusDropdownOptionByDirection(FocusDirection.next);
+        }
+
         this.addDocumentEvent();
+
+        this.settings.onOpen();
     }
 
     /*
@@ -154,6 +217,9 @@ export default class VVSelect {
         this.element.classList.remove(this.settings['openClass']);
 
         this.removeDocumentEvent();
+
+        this.settings.onClose();
+
     }
 
     /** ----------------------------------------
@@ -161,55 +227,109 @@ export default class VVSelect {
     ---------------------------------------- */
 
     /*
+     * UpdateSelectStyling
+     */
+    private updateSelectStyling(): void
+    {
+        this.select.style.zIndex = '0';
+        this.select.tabIndex = -1;
+    }
+
+    /*
      * Add dropdown element
      */
-    private addDropdown(): void
+    private addDropdownNode(): void
     {
-        this.dropdown = document.createElement('div');
-        this.dropdown.classList.add(this.settings['dropdownClass']);
+        this.dropdown = document.createElement('div') as HTMLDivElement;
+
+        if (this.settings['dropdownClass'])
+            this.dropdown.classList.add(this.settings['dropdownClass']);
+
         this.element.appendChild(this.dropdown);
     }
 
     /*
-     * Add input elements
+     * Create dropdown option nodes based on all options
      */
-    private addInputs(): void
+    private createDropdownOptionNodes(): void
     {
-        if (!this.dropdown) return;
-        
-        this.inputs = new Array();
+        this.dropdownOptions = new Array();
 
         this.options.forEach(option => {
-            const input = document.createElement('input');
-            const label = document.createElement('label');
-            const id = `${this.name}-${option.index}`;
-
-            input.id = id;
-            input.disabled = option.disabled;
-            input.checked = option.selected;
-            input.value = option.value;
-            input.name = this.select.name;
-            input.type = (this.multiple) ? 'checkbox' : 'radio';
-            input.style.display = 'none';
-
-            label.innerText = option.innerText;
-            label.htmlFor = id;
-
-            this.dropdown.appendChild(input);
-            this.dropdown.appendChild(label);
-
-            this.inputs.push(input);
+            this.createDropdownOptionNode(option);
         });
     }
 
     /*
-     * Remove select element
+     * Create dropdown option node based on given option
      */
-    private removeSelect(): void 
+    private createDropdownOptionNode(option: HTMLOptionElement): null|HTMLAnchorElement
     {
-        this.select.remove();
-        this.select = null;
-        this.options = null;
+        const dropdownOption = document.createElement('a') as HTMLAnchorElement;
+
+        dropdownOption.tabIndex = 0;
+        dropdownOption.href = 'javascript:;';
+
+        if (this.settings['dropdownOptionClass'])
+            dropdownOption.className = this.settings['dropdownOptionClass'];
+        
+        this.dropdownOptionsMap.set(dropdownOption, option);
+        this.dropdown.appendChild(dropdownOption);
+        this.dropdownOptions.push(dropdownOption);
+
+        this.updateDropdownOption(dropdownOption);
+
+        return dropdownOption;
+    }
+
+    /*
+     * Remove dropdown option node based on given option
+     */
+    private removeDropdownOptionNode(option: HTMLOptionElement): void 
+    {
+        const dropdownOption = this.getDropdownOptionFromMap(option);
+
+        this.dropdownOptionsMap.delete(dropdownOption);
+
+        this.dropdownOptions = this.dropdownOptions.filter(el => el !== dropdownOption);
+
+        dropdownOption.remove();
+    }
+
+    /*
+     * Update all dropdown option nodes
+     */
+    private updateDropdownOptions(): void
+    {
+        this.dropdownOptions.forEach(dropdownOption => {
+            this.updateDropdownOption(dropdownOption);
+        });
+    }
+
+    /*
+     * Update given dropdown option node
+     */
+    private updateDropdownOption(dropdownOption: HTMLAnchorElement): void
+    {
+        const option = this.dropdownOptionsMap.get(dropdownOption);
+
+        // Update data attribute
+        const propsToDataset = ['disabled', 'selected', 'value'];
+        propsToDataset.forEach(prop => {
+            if (typeof option[prop] === 'boolean') {
+                if (option[prop])
+                    dropdownOption.dataset[prop] = '';
+                else
+                    delete dropdownOption.dataset[prop];
+            } else {
+                if (dropdownOption.dataset[prop] !== option[prop])
+                    dropdownOption.dataset[prop] = option[prop];
+            }
+        })
+
+        // Update text
+        if (dropdownOption.textContent !== option.textContent)
+            dropdownOption.textContent = option.textContent;
     }
 
     /*
@@ -218,19 +338,59 @@ export default class VVSelect {
     private addSelectEvent(): void
     {
         this.select.addEventListener('change', () => {
-            this.updateLabel();
+            this.updateTriggerText();
+
+            if (this.useDropdown)
+                this.updateDropdownOptions();
+
+            this.settings.onChange();
         });
     }
 
     /*
-     * Add input event
+     * Add dropdown options event
      */
-    private addInputEvents(): void
+    private addDropdownOptionEvents(): void
     {
-        this.inputs.forEach(input => {
-            input.addEventListener('change', () => {
-                this.updateLabel();
-            });
+        this.dropdownOptions.forEach(dropdownOption => {
+            this.addDropdownOptionEvent(dropdownOption);
+        });
+    }
+
+    /*
+     * Add dropdown options event
+     */
+    private addDropdownOptionEvent(dropdownOption: HTMLAnchorElement): void
+    {
+        dropdownOption.addEventListener('click', () => {
+            const option = this.dropdownOptionsMap.get(dropdownOption);
+
+            if (option.disabled) 
+                return;
+
+            if (this.multiple) {
+                option.selected = !option.selected;
+
+                this.select.dispatchEvent(new Event('change'));
+            }
+
+            if (!this.multiple && !option.selected) {
+                option.selected = true;
+
+                this.select.dispatchEvent(new Event('change'));
+            }
+        });
+
+        dropdownOption.addEventListener('mouseover', () => {
+            if (this.keydown)
+                return;
+
+            const option = this.dropdownOptionsMap.get(dropdownOption);
+
+            if (option.disabled) 
+                return;
+
+            this.focusDropdownOptionByIndex(this.dropdownOptions.indexOf(dropdownOption));
         });
     }
 
@@ -239,7 +399,7 @@ export default class VVSelect {
      */
     private addTriggerEvent(): void
     {
-        this.label.addEventListener('click', (ev) => {
+        this.trigger.addEventListener('click', ev => {
             ev.preventDefault();
 
             if (this.disabled) return;
@@ -249,12 +409,151 @@ export default class VVSelect {
     }
 
     /*
+     * Add dropdown events
+     */
+    private addDropdownEvent(): void
+    {
+        this.dropdown.addEventListener('keydown', ev => {
+            this.keydown = true;
+
+            if (ev.keyCode === 38) { // up
+                ev.preventDefault();
+                this.focusDropdownOptionByDirection(FocusDirection.prev);
+            }
+
+            if (ev.keyCode === 40) { // down
+                ev.preventDefault();
+                this.focusDropdownOptionByDirection(FocusDirection.next);
+            }
+
+            const char = String.fromCharCode(ev.keyCode);
+            
+            if (
+                char && 
+                char.match(/^[a-z0-9 ]+$/i) && 
+                !(ev.ctrlKey || ev.altKey || ev.metaKey || ev.repeat)
+            ) {
+                ev.preventDefault();
+                this.focusSearchedDropdownOption(char);
+            }
+        });
+
+        this.dropdown.addEventListener('keyup', ev => {
+            this.keydown = false;
+        });
+    }
+
+    /*
+     * Focus dropdown option based on current focused option and given direction
+     */
+    private focusDropdownOptionByDirection(focusDirection: FocusDirection): void
+    {
+        this.dropdownOptions.forEach((dropdownOption, index) => {
+            if (document.activeElement === dropdownOption) {
+                let nextIndex = index + focusDirection;
+
+                while (typeof this.dropdownOptions[nextIndex] !== 'undefined') {
+                    const nextOption = this.dropdownOptionsMap.get(this.dropdownOptions[nextIndex]);
+                    
+                    if (nextOption.disabled) {
+                        nextIndex+= focusDirection;
+                    } else {
+                        this.focusDropdownOptionByIndex(nextIndex);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    /*
+     * Focus dropdown option based on search
+     */
+    private focusSearchedDropdownOption(char: string): void
+    {
+        const time = (new Date()).getTime();
+
+        if (time > this.searchTime + this.searchTimeout)
+            this.searchString = '';
+
+        this.searchTime = time;
+        this.searchString+= char.toLowerCase();
+        console.log(this.searchString);
+
+        const matches = this.dropdownOptions.filter(option => option.innerHTML.toLowerCase().startsWith(this.searchString));
+        
+        if (matches.length) {
+            this.focusDropdownOptionByIndex(this.dropdownOptions.indexOf(matches[0]));
+        } else if (this.searchString.length === 1) {
+            this.focusDropdownOptionByIndex(0);
+        }
+    }
+
+    /*
+     * Focus dropdown option by index
+     */
+    private focusDropdownOptionByIndex(index: number): void
+    {
+        window.requestAnimationFrame(() => {
+            this.dropdownOptions[index].focus();
+        });
+    }
+
+    /*
+     * Create select observer
+     */
+    private createSelectObserver(): void
+    {
+        this.selectObserver = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    // Handle added option node
+                    Array.from(mutation.addedNodes).filter(node => node.nodeName === 'OPTION').forEach(optionNode => {
+                        const option = optionNode as HTMLOptionElement;
+
+                        this.options.push(option);
+
+                        if (this.useDropdown) {
+                            const dropdownOption = this.createDropdownOptionNode(option);
+                            this.addDropdownOptionEvent(dropdownOption);
+                        }
+                    });
+
+                    // Handle removed option node
+                    Array.from(mutation.removedNodes).filter(node => node.nodeName === 'OPTION').forEach(optionNode => {
+                        const option = optionNode as HTMLOptionElement;
+                        const updatedValue = this.value.includes(option.value);
+
+                        this.options = this.options.filter(value => value !== option);
+
+                        if (this.useDropdown) 
+                            this.removeDropdownOptionNode(option as HTMLOptionElement);
+
+                        if (updatedValue)
+                            this.select.dispatchEvent(new Event('change'));
+                    });
+                }
+
+                if (mutation.type === 'attributes' && mutation.target.nodeName === 'OPTION') {
+                    const option = mutation.target as HTMLOptionElement;
+                    const dropdownOption = this.getDropdownOptionFromMap(option);
+                    this.updateDropdownOption(dropdownOption);
+                }
+            });    
+        });
+        
+        var config = { attributes: true, childList: true, characterData: true, subtree: true };
+        
+        this.selectObserver.observe(this.select, config);
+    }
+
+    /*
      * Is descendant helper class
      * This could maybe be moved to a helper package
      */
-    private isDescendant(parent: any, child: any): boolean
+    private isDescendant(parent: Node, child: HTMLElement): boolean
     {
-        var node = child.parentNode;
+        let node = child.parentNode;
         while (node != null) {
             if (node == parent) {
                 return true;
@@ -262,6 +561,15 @@ export default class VVSelect {
             node = node.parentNode;
         }
         return false;
+    }
+
+    /*
+     * Get dropdown option from map by given value
+     */
+    private getDropdownOptionFromMap(option: HTMLOptionElement): null|HTMLAnchorElement
+    {
+        const filtered = Array.from(this.dropdownOptionsMap).filter(value => value[1] === option);
+        return (filtered.length === 1) ? filtered[0][0] : null;
     }
 
     /*
@@ -285,7 +593,7 @@ export default class VVSelect {
      */
     private handleDocumentClick(ev: Event): void
     {
-        const target = ev.srcElement;
+        const target = ev.target as HTMLElement;
 
         if (target !== this.element && !this.isDescendant(this.element, target)) {
             this.close();
@@ -297,32 +605,24 @@ export default class VVSelect {
      */
     private getSelectedOptions(): Array<HTMLInputElement|HTMLOptionElement>
     {
-        if (this.useSelect) {
-            return this.options.filter(option => {
-                return option.selected;
-            });
-        } else {
-            return this.inputs.filter(input => {
-                return input.checked;
-            });
-        }
+        return this.options.filter(option => option.selected);
     }
 
     /*
-     * Update label
+     * Update trigger text
      */
-    private updateLabel(): void
+    private updateTriggerText(): void
     {
         const elements = this.getSelectedOptions();
 
         if (this.multiple) {
-            const amount = elements.length;
+            const amount = String(elements.length);
             const format = (amount) ? 'multipleSelectedFormat' : 'multipleFormat';
-            this.label.innerText = this.settings[format].replace(/%s/g, amount);
+            this.trigger.innerText = this.settings[format].replace(/%s/g, amount);
         } else {
-            const text = (elements[0]) ? (this.useSelect) ? elements[0].innerHTML : elements[0].nextElementSibling.innerHTML : '';
+            const text = (elements[0]) ? elements[0].innerHTML : '';
             const format = (text) ? 'singleSelectedFormat' : 'singleFormat';
-            this.label.innerText = this.settings[format].replace(/%s/g, text);
+            this.trigger.innerText = this.settings[format].replace(/%s/g, text);
         }
     }
 }

@@ -6,11 +6,10 @@
 @tedgodyla:registry=https://npm.pkg.github.com
 ```
 
-2. Make sure you have a personal github oath token
-[(link)](https://github.com/settings/tokens)
+2. Make sure you have a personal github oath token: [get it here](https://github.com/settings/tokens)
 
 3. Login into npm
-```
+```bash
 npm login --registry=https://npm.pkg.github.com
 ```
 
@@ -19,7 +18,7 @@ npm login --registry=https://npm.pkg.github.com
 ```js
 import VVSelect from 'tedgodyla@select';
 
-const selectElems: document.querySelectorAll('.select')
+const selectElems = document.querySelectorAll('.select')
 
 [...selectElems].forEach(selectEl => {
     new VVSelect(selectEl);
@@ -27,6 +26,7 @@ const selectElems: document.querySelectorAll('.select')
 ```
 
 ## Options
+TODO
 
 ```js
 new VVSelect(element, {
@@ -52,23 +52,56 @@ new VVSelect(element, {
 
 ## Methods
 
+##### Open dropdown
+
 ```js
-const select = new VVSelect(element);
-
-// Open select dropdown
 select.open();
+```
 
-// Close select dropdown
+##### Close dropdown
+
+```js
 select.close();
+```
 
-// Set value for single select
+## Setters
+
+##### set value
+
+```js
 select.value = '1'; 
 // or
 select.value = ['1'];
+```
 
-// Set value for multi select
-select.value = ['1', '3'];
+##### set initialized callback
 
-// Get value
+```js
+select.onInitialized = () => console.log('initialized');
+```
+
+##### set change callback
+
+```js
+select.onChange = () => console.log('changed');
+```
+
+##### set open callback
+
+```js
+select.onOpen = () => console.log('opened');
+```
+
+##### set close callback
+
+```js
+select.onClose = () => console.log('closed');
+```
+
+## Getters
+
+##### get value
+
+```js
 const values = select.value;
 ```
