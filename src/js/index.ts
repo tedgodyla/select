@@ -161,7 +161,7 @@ export default class VVSelect {
     }
 
     /*
-     * Set on intialized function
+     * Set on change function
      */
     set onChange(fn: Function)
     {
@@ -169,7 +169,7 @@ export default class VVSelect {
     }
 
     /*
-     * Set on intialized function
+     * Set on open function
      */
     set onOpen(fn: Function)
     {
@@ -177,7 +177,7 @@ export default class VVSelect {
     }
 
     /*
-     * Set on intialized function
+     * Set on close function
      */
     set onClose(fn: Function)
     {
@@ -189,7 +189,7 @@ export default class VVSelect {
     ---------------------------------------- */
 
     /*
-     * Open dropdown and set document event
+     * Open dropdown
      */
     public open(): void
     {
@@ -197,10 +197,7 @@ export default class VVSelect {
 
         this.element.classList.add(this.settings['openClass']);
 
-        if (this.dropdownOptions.length) {
-            this.dropdownOptions[0].focus();
-            this.focusDropdownOptionByDirection(FocusDirection.next);
-        }
+        this.focusDropdownOptionClosestToIndex(0);
 
         this.addDocumentEvent();
 
@@ -325,7 +322,9 @@ export default class VVSelect {
                 if (dropdownOption.dataset[prop] !== option[prop])
                     dropdownOption.dataset[prop] = option[prop];
             }
-        })
+        });
+
+        dropdownOption.tabIndex = (option.disabled) ? -1 : 0;
 
         // Update text
         if (dropdownOption.textContent !== option.textContent)
@@ -362,10 +361,16 @@ export default class VVSelect {
      */
     private addDropdownOptionEvent(dropdownOption: HTMLAnchorElement): void
     {
-        dropdownOption.addEventListener('click', () => {
+        // - Select dropdown option on click
+        // - Ignore for disabled option
+        // - Trigger change event
+        // - Close dropdown afterwards for single select
+        dropdownOption.addEventListener('click', (e) => {
+            e.preventDefault();
+
             const option = this.dropdownOptionsMap.get(dropdownOption);
 
-            if (option.disabled) 
+            if (option.disabled)
                 return;
 
             if (this.multiple) {
@@ -379,8 +384,13 @@ export default class VVSelect {
 
                 this.select.dispatchEvent(new Event('change'));
             }
+
+            if (!this.multiple)
+                this.close();
         });
 
+        // - Focus dropdown option on mouseover
+        // - Ignore for disabled option or when typing
         dropdownOption.addEventListener('mouseover', () => {
             if (this.keydown)
                 return;
@@ -392,6 +402,14 @@ export default class VVSelect {
 
             this.focusDropdownOptionByIndex(this.dropdownOptions.indexOf(dropdownOption));
         });
+
+        // - Prevent dropdown option focus on disabled option
+        dropdownOption.addEventListener('mousedown', () => {
+            const option = this.dropdownOptionsMap.get(dropdownOption);
+
+            if (option.disabled) 
+                event.preventDefault();
+        });
     }
 
     /*
@@ -399,10 +417,13 @@ export default class VVSelect {
      */
     private addTriggerEvent(): void
     {
+        // - Open/close dropdown
+        // - Ignore when select is disabled
         this.trigger.addEventListener('click', ev => {
             ev.preventDefault();
 
-            if (this.disabled) return;
+            if (this.disabled) 
+                return;
 
             (this.isOpen) ? this.close() : this.open();
         });
@@ -413,28 +434,42 @@ export default class VVSelect {
      */
     private addDropdownEvent(): void
     {
+        // - Focus next dropdown option on key down
+        // - Focus previous dropdown option on key up
+        // - Focus dropdown option that matched search string when typing
         this.dropdown.addEventListener('keydown', ev => {
             this.keydown = true;
+
+            console.log('keydown');
 
             if (ev.keyCode === 38) { // up
                 ev.preventDefault();
                 this.focusDropdownOptionByDirection(FocusDirection.prev);
+                return undefined;
             }
 
             if (ev.keyCode === 40) { // down
                 ev.preventDefault();
                 this.focusDropdownOptionByDirection(FocusDirection.next);
+                return undefined;
+            }
+
+
+            if (ev.keyCode === 8) { // backspace
+                ev.preventDefault();
+                this.searchString = this.searchString.slice(0, -1);
+                this.focusDropdownOptionBySearchedString('');
+                return undefined;
             }
 
             const char = String.fromCharCode(ev.keyCode);
-            
+
             if (
-                char && 
-                char.match(/^[a-z0-9 ]+$/i) && 
-                !(ev.ctrlKey || ev.altKey || ev.metaKey || ev.repeat)
+                (char && char.match(/^[a-z0-9 ]+$/i)) &&
+                !(ev.ctrlKey || ev.altKey || ev.metaKey)
             ) {
                 ev.preventDefault();
-                this.focusSearchedDropdownOption(char);
+                this.focusDropdownOptionBySearchedString(char);
             }
         });
 
@@ -444,7 +479,22 @@ export default class VVSelect {
     }
 
     /*
-     * Focus dropdown option based on current focused option and given direction
+     * Focus dropdown option by index
+     * Ignore disabled option
+     */
+    private focusDropdownOptionByIndex(index: number): void
+    {
+        window.requestAnimationFrame(() => {
+            const option = this.dropdownOptionsMap.get(this.dropdownOptions[index]);
+
+            if (!option.disabled)
+                this.dropdownOptions[index].focus();
+        });
+    }
+
+    /*
+     * Focus next dropdown option based on current focused option and given direction
+     * Skip disabled option
      */
     private focusDropdownOptionByDirection(focusDirection: FocusDirection): void
     {
@@ -452,7 +502,7 @@ export default class VVSelect {
             if (document.activeElement === dropdownOption) {
                 let nextIndex = index + focusDirection;
 
-                while (typeof this.dropdownOptions[nextIndex] !== 'undefined') {
+                while (typeof this.dropdownOptions[nextIndex] !== undefined) {
                     const nextOption = this.dropdownOptionsMap.get(this.dropdownOptions[nextIndex]);
                     
                     if (nextOption.disabled) {
@@ -467,9 +517,46 @@ export default class VVSelect {
     }
 
     /*
-     * Focus dropdown option based on search
+     * Focus dropdown option closest to index. First checks current index, 
+     * then next index, then prev index, the 2nd next index, then 2nd prev index etc.
+     * Skips disabled option.
      */
-    private focusSearchedDropdownOption(char: string): void
+    private focusDropdownOptionClosestToIndex(index: number): void
+    {
+        for (let i = 0; i <= this.dropdownOptions.length; i++) {
+            let breakLoop = false;
+
+            for (let j = 1; j >= -1; j-= 2) {
+                const x = index + (i * j);
+
+                if (!this.dropdownOptions[x])
+                    continue;
+                
+                const option = this.dropdownOptionsMap.get(this.dropdownOptions[x]);
+
+                if (!option.disabled) {
+                    this.focusDropdownOptionByIndex(x);
+                    breakLoop = true;
+                    break;
+                }
+
+                if (x === 0)
+                    break;
+            }
+
+            if (breakLoop)
+                break;
+        }
+    }
+
+    /*
+     * Focus dropdown option based on search
+     * If all match (empty string): Focus closest focusable to index 0
+     * Else if matches found: Focus first match
+     * Else if searching 1 char: Focus option that is alphabeticly closest to the char
+     * Else: Don't change focus
+     */
+    private focusDropdownOptionBySearchedString(char: string): void
     {
         const time = (new Date()).getTime();
 
@@ -478,25 +565,45 @@ export default class VVSelect {
 
         this.searchTime = time;
         this.searchString+= char.toLowerCase();
-        console.log(this.searchString);
 
         const matches = this.dropdownOptions.filter(option => option.innerHTML.toLowerCase().startsWith(this.searchString));
-        
-        if (matches.length) {
-            this.focusDropdownOptionByIndex(this.dropdownOptions.indexOf(matches[0]));
+
+        if (matches.length === this.dropdownOptions.length) {
+            this.focusDropdownOptionClosestToIndex(0);
+        } else if (matches.length) {
+            this.focusDropdownOptionClosestToIndex(this.dropdownOptions.indexOf(matches[0]));
         } else if (this.searchString.length === 1) {
-            this.focusDropdownOptionByIndex(0);
+            this.focusDropdownOptionByFirstLetter(this.searchString);
+            
         }
     }
 
     /*
-     * Focus dropdown option by index
+     * Focus dropdown option where first letter is alphabetically closest to given char
      */
-    private focusDropdownOptionByIndex(index: number): void
+    private focusDropdownOptionByFirstLetter(char: string): void
     {
-        window.requestAnimationFrame(() => {
-            this.dropdownOptions[index].focus();
+        const searchLetterIndex = parseInt(char, 36) - 9;
+        let lowestDiff = 26;
+        let closestDropdownOption = null;
+
+        this.dropdownOptions.forEach(dropdownOption => {
+            const option = this.dropdownOptionsMap.get(dropdownOption);
+
+            if (!option.disabled) {
+                const firstLetter = dropdownOption.textContent.charAt(0).toLowerCase();
+                const letterIndex = parseInt(firstLetter, 36) - 9;
+                const diff = Math.abs(searchLetterIndex - letterIndex);
+                
+                if (diff <= lowestDiff) {
+                    lowestDiff = diff;
+                    closestDropdownOption = dropdownOption;
+                }
+            }
         });
+
+        if (closestDropdownOption)
+            this.focusDropdownOptionByIndex(this.dropdownOptions.indexOf(closestDropdownOption));
     }
 
     /*

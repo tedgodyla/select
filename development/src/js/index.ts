@@ -64,6 +64,7 @@ const testSingleSelect: Function = () => {
     const addOption: HTMLOptionElement = document.createElement('option');
     addOption.value = 'added_option';
     addOption.textContent = 'added option';
+    addOption.disabled = true;
     singleSelectEl.querySelector('select').appendChild(addOption);
 
     // Remove option

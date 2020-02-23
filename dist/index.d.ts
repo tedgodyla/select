@@ -59,9 +59,11 @@ export default class VVSelect {
     private addDropdownOptionEvent;
     private addTriggerEvent;
     private addDropdownEvent;
-    private focusDropdownOptionByDirection;
-    private focusSearchedDropdownOption;
     private focusDropdownOptionByIndex;
+    private focusDropdownOptionByDirection;
+    private focusDropdownOptionClosestToIndex;
+    private focusDropdownOptionBySearchedString;
+    private focusDropdownOptionByFirstLetter;
     private createSelectObserver;
     private isDescendant;
     private getDropdownOptionFromMap;
