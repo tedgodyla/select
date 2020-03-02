@@ -102,12 +102,12 @@ export default class VVSelect {
     public init() 
     {
         if (this.useDropdown) {
-            this.addDropdownNode();
+            this.createDropdownNode();
             this.createDropdownOptionNodes();
             this.updateSelectStyling();
-            this.addDropdownOptionEvents();
+            this.addDropdownOptionsEvents();
             this.addTriggerEvent();
-            this.addDropdownEvent();
+            this.addDropdownEvents();
             
             if (this.autofocus && !this.disabled) {
                 this.trigger.click();
@@ -145,9 +145,7 @@ export default class VVSelect {
         if (typeof values === 'string')
             values = [values];
 
-        this.options.forEach(option => {
-            option.selected = values.includes(option.value);
-        });
+        this.options.forEach(option => option.selected = values.includes(option.value));
         
         this.select.dispatchEvent(new Event('change'));
     }
@@ -233,9 +231,9 @@ export default class VVSelect {
     }
 
     /*
-     * Add dropdown element
+     * Create dropdown node
      */
-    private addDropdownNode(): void
+    private createDropdownNode(): void
     {
         this.dropdown = document.createElement('div') as HTMLDivElement;
 
@@ -252,9 +250,7 @@ export default class VVSelect {
     {
         this.dropdownOptions = new Array();
 
-        this.options.forEach(option => {
-            this.createDropdownOptionNode(option);
-        });
+        this.options.forEach(option => this.createDropdownOptionNode(option));
     }
 
     /*
@@ -271,6 +267,7 @@ export default class VVSelect {
             dropdownOption.className = this.settings['dropdownOptionClass'];
         
         this.dropdownOptionsMap.set(dropdownOption, option);
+
         this.dropdown.appendChild(dropdownOption);
         this.dropdownOptions.push(dropdownOption);
 
@@ -298,9 +295,7 @@ export default class VVSelect {
      */
     private updateDropdownOptions(): void
     {
-        this.dropdownOptions.forEach(dropdownOption => {
-            this.updateDropdownOption(dropdownOption);
-        });
+        this.dropdownOptions.forEach(dropdownOption => this.updateDropdownOption(dropdownOption));
     }
 
     /*
@@ -349,17 +344,15 @@ export default class VVSelect {
     /*
      * Add dropdown options event
      */
-    private addDropdownOptionEvents(): void
+    private addDropdownOptionsEvents(): void
     {
-        this.dropdownOptions.forEach(dropdownOption => {
-            this.addDropdownOptionEvent(dropdownOption);
-        });
+        this.dropdownOptions.forEach(dropdownOption => this.addDropdownOptionEvents(dropdownOption));
     }
 
     /*
      * Add dropdown options event
      */
-    private addDropdownOptionEvent(dropdownOption: HTMLAnchorElement): void
+    private addDropdownOptionEvents(dropdownOption: HTMLAnchorElement): void
     {
         // - Select dropdown option on click
         // - Ignore for disabled option
@@ -432,15 +425,13 @@ export default class VVSelect {
     /*
      * Add dropdown events
      */
-    private addDropdownEvent(): void
+    private addDropdownEvents(): void
     {
         // - Focus next dropdown option on key down
         // - Focus previous dropdown option on key up
         // - Focus dropdown option that matched search string when typing
         this.dropdown.addEventListener('keydown', ev => {
             this.keydown = true;
-
-            console.log('keydown');
 
             if (ev.keyCode === 38) { // up
                 ev.preventDefault();
@@ -574,7 +565,6 @@ export default class VVSelect {
             this.focusDropdownOptionClosestToIndex(this.dropdownOptions.indexOf(matches[0]));
         } else if (this.searchString.length === 1) {
             this.focusDropdownOptionByFirstLetter(this.searchString);
-            
         }
     }
 
@@ -622,7 +612,7 @@ export default class VVSelect {
 
                         if (this.useDropdown) {
                             const dropdownOption = this.createDropdownOptionNode(option);
-                            this.addDropdownOptionEvent(dropdownOption);
+                            this.addDropdownOptionEvents(dropdownOption);
                         }
                     });
 
@@ -662,9 +652,9 @@ export default class VVSelect {
     {
         let node = child.parentNode;
         while (node != null) {
-            if (node == parent) {
+            if (node == parent)
                 return true;
-            }
+
             node = node.parentNode;
         }
         return false;
@@ -702,15 +692,14 @@ export default class VVSelect {
     {
         const target = ev.target as HTMLElement;
 
-        if (target !== this.element && !this.isDescendant(this.element, target)) {
+        if (target !== this.element && !this.isDescendant(this.element, target))
             this.close();
-        }
     }
 
     /*
      * Get selected options
      */
-    private getSelectedOptions(): Array<HTMLInputElement|HTMLOptionElement>
+    private getSelectedOptions(): Array<HTMLOptionElement>
     {
         return this.options.filter(option => option.selected);
     }
