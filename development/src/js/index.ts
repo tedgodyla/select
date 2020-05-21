@@ -37,7 +37,7 @@ const testMultiSelect: Function = () => {
     const addOption: HTMLOptionElement = document.createElement('option');
     addOption.value = 'added_option';
     addOption.textContent = 'added option';
-    multiSelectEl.querySelector('select').appendChild(addOption);
+    multiSelectEl.querySelector('optgroup:last-of-type').appendChild(addOption);
 
     // Remove option
     const removeOption: HTMLOptionElement = multiSelectEl.querySelector('option:nth-child(2)')

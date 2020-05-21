@@ -13,18 +13,22 @@
             <div class="select" id="multiSelect">
                 <a class="select__trigger" href="javascript:;">...</a>
                 <select class="select__select" multiple>
-                    <option value="1">Drenthe</option>
-                    <option value="2">Flevoland</option>
-                    <option value="3">Friesland</option>
-                    <option value="4">Gelderland</option>
-                    <option value="5">Groningen</option>
-                    <option value="6" disabled>Limburg</option>
-                    <option value="7">Noord-Brabant</option>
-                    <option value="8">Noord-Holland</option>
-                    <option value="9">Overijsel</option>
-                    <option value="10">Utrecht</option>
-                    <option value="11">Zeeland</option>
-                    <option value="12">Zuid-Holland</option>
+                    <optgroup label="Optgroup 1">
+                        <option value="1">Drenthe</option>
+                        <option value="2">Flevoland</option>
+                        <option value="3">Friesland</option>
+                        <option value="4">Gelderland</option>
+                        <option value="5">Groningen</option>
+                    </optgroup>
+                    <optgroup label="Optgroup 2">
+                        <option value="6" disabled>Limburg</option>
+                        <option value="7">Noord-Brabant</option>
+                        <option value="8">Noord-Holland</option>
+                        <option value="9">Overijsel</option>
+                        <option value="10">Utrecht</option>
+                        <option value="11">Zeeland</option>
+                        <option value="12">Zuid-Holland</option>
+                    </optgroup>
                 </select>
             </div>
             <div class="status" id="multiStatus"></div>
@@ -34,11 +38,15 @@
             <div class="select" id="singleSelect">
                 <a class="select__trigger" href="javascript:;">...</a>
                 <select class="select__select">
-                    <option value="1">Drenthe</option>
-                    <option value="2">Flevoland</option>
-                    <option value="3">Friesland</option>
-                    <option value="4">Gelderland</option>
-                    <option value="5">Groningen</option>
+                    <optgroup label="Optgroup 1">
+                        <option value="">Foo</option>
+                        <option value="">Test</option>
+                        <option value="1">Drenthe</option>
+                        <option value="2">Flevoland</option>
+                        <option value="3">Friesland</option>
+                        <option value="4">Gelderland</option>
+                        <option value="5">Groningen</option>
+                    </optgroup>
                     <option value="6" disabled>Limburg</option>
                     <option value="7" disabled>Noord-Brabant</option>
                     <option value="8">Noord-Holland</option>
@@ -53,11 +61,13 @@
 
         <div class="column">
             <select>
-                <option value="1">Drenthe</option>
-                <option value="2">Flevoland</option>
-                <option value="3">Friesland</option>
-                <option value="4">Gelderland</option>
-                <option value="5">Groningen</option>
+                <optgroup label="Optgroup 1">
+                    <option value="1">Drenthe</option>
+                    <option value="2">Flevoland</option>
+                    <option value="3">Friesland</option>
+                    <option value="4">Gelderland</option>
+                    <option value="5">Groningen</option>
+                </optgroup>
                 <option value="6" disabled>Limburg</option>
                 <option value="7" disabled>Noord-Brabant</option>
                 <option value="8">Noord-Holland</option>

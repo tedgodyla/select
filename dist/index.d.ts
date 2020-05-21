@@ -6,6 +6,8 @@
 interface VVSelectSettings {
     dropdownClass: string;
     dropdownOptionClass: string;
+    dropdownOptGroupClass: string;
+    dropdownOptGroupLabelClass: string;
     openClass: string;
     multipleSelectedFormat: string;
     multipleFormat: string;
@@ -25,6 +27,7 @@ export default class VVSelect {
     private dropdown;
     private dropdownOptions;
     private dropdownOptionsMap;
+    private dropdownOptGroupsMap;
     private searchTime;
     private searchTimeout;
     private searchString;
@@ -47,18 +50,25 @@ export default class VVSelect {
     set onClose(fn: Function);
     open(): void;
     close(): void;
-    private updateSelectStyling;
     private createDropdownNode;
     private createDropdownOptionNodes;
+    private createDropdownOptgroupNode;
     private createDropdownOptionNode;
     private removeDropdownOptionNode;
+    private removeDropdownOptGroupNode;
+    private updateSelectStyling;
+    private updateTriggerText;
     private updateDropdownOptions;
     private updateDropdownOption;
+    private updateDropdownOptGroup;
     private addSelectEvent;
     private addDropdownOptionsEvents;
     private addDropdownOptionEvents;
     private addTriggerEvent;
     private addDropdownEvents;
+    private addDocumentEvent;
+    private removeDocumentEvent;
+    private handleDocumentClick;
     private focusDropdownOptionByIndex;
     private focusDropdownOptionByDirection;
     private focusDropdownOptionClosestToIndex;
@@ -67,10 +77,7 @@ export default class VVSelect {
     private createSelectObserver;
     private isDescendant;
     private getDropdownOptionFromMap;
-    private addDocumentEvent;
-    private removeDocumentEvent;
-    private handleDocumentClick;
+    private getDropdownOptGroupFromMap;
     private getSelectedOptions;
-    private updateTriggerText;
 }
 export {};

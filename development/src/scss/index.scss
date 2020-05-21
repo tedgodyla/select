@@ -1,4 +1,5 @@
 @import '~styles/index';
+@import '~styles/ui';
 
 html {
   font-family: Helvetica, sans-serif;
@@ -28,56 +29,4 @@ body {
 
 .status {
   margin-top: 1rem;
-}
-
-.select {
-  box-sizing: border-box;
-
-  &__trigger {
-    padding: 0.5em 0.75em;
-    border: #ccc solid 1px;
-    border-radius: 0.25em;
-    background: #fff;
-    box-sizing: border-box;
-  }
-
-  &__dropdown {
-    max-width: 300px;
-    padding: 0.25em 0;
-    border: #ccc solid 1px;
-    border-radius: 0.25em;
-    background: #fff;
-    top: calc(100% - 1px);
-    box-sizing: border-box;
-  }
-
-  &__dropdown-option {
-    padding: 0.5em 0.75em 0.5em 1.5em;
-    line-height: 1em;
-    max-width: 100%;
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &::before {
-      content: '✓';
-      opacity: 0;
-      position: absolute;
-      width: 1em;
-      height: 1em;
-      transform: translateX(-1em);
-    }
-
-    &:focus {
-      background: #eee;
-      outline: none;
-    }
-
-    &[data-selected] {
-      &::before {
-        opacity: 1;
-      }
-    }
-  }
 }
