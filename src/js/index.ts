@@ -503,9 +503,10 @@ export default class VVSelect {
      */
     private addDropdownEvents(): void
     {
-        // - Focus next dropdown option on key down
-        // - Focus previous dropdown option on key up
+        // - Focus next dropdown option on down key
+        // - Focus previous dropdown option on up key
         // - Focus dropdown option that matched search string when typing
+        // - Close dropdown on esc key down
         this.dropdown.addEventListener('keydown', ev => {
             this.keydown = true;
 
@@ -521,6 +522,11 @@ export default class VVSelect {
                 return undefined;
             }
 
+            if (ev.keyCode === 27) { // esc
+                ev.preventDefault();
+                this.close();
+                return undefined;
+            }
 
             if (ev.keyCode === 8) { // backspace
                 ev.preventDefault();
