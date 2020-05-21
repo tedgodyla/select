@@ -582,7 +582,7 @@ export default class VVSelect {
     private removeDocumentEvent(): void
     {
         document.removeEventListener('click', this.handleDocumentClick);
-        document.removeEventListener('click', this.handleDocumentFocusin, true);
+        document.removeEventListener('focusin', this.handleDocumentFocusin, true);
     }
 
     /*
