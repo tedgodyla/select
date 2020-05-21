@@ -86,6 +86,7 @@ export default class VVSelect {
         this.settings = {...this.defaultSettings, ...settings };
 
         this.handleDocumentClick = this.handleDocumentClick.bind(this);
+        this.handleDocumentFocusin = this.handleDocumentFocusin.bind(this);
 
         this.trigger = element.querySelector('a');
         this.select = element.querySelector('select');
@@ -111,7 +112,7 @@ export default class VVSelect {
             this.createDropdownOptionNodes(Array.from(this.select.children), this.dropdown);
             this.updateSelectStyling();
             this.addDropdownOptionsEvents();
-            this.addTriggerEvent();
+            this.addTriggerEvents();
             this.addDropdownEvents();
             
             if (this.autofocus && !this.disabled)
@@ -201,7 +202,7 @@ export default class VVSelect {
 
         this.focusDropdownOptionClosestToIndex(0);
 
-        this.addDocumentEvent();
+        this.addDocumentEvents();
 
         this.settings.onOpen();
     }
@@ -482,19 +483,34 @@ export default class VVSelect {
     }
 
     /*
-     * Add trigger event
+     * Add trigger events
      */
-    private addTriggerEvent(): void
+    private addTriggerEvents(): void
     {
-        // - Open/close dropdown
+        // - Open/close dropdown on mousedown
         // - Ignore when select is disabled
-        this.trigger.addEventListener('click', ev => {
-            ev.preventDefault();
-
+        // - PreventDefault prevents focus event from being triggered
+        this.trigger.addEventListener('mousedown', ev => {
             if (this.disabled) 
                 return;
-
+            
             (this.isOpen) ? this.close() : this.open();
+
+            ev.preventDefault();
+        });
+
+        // - Open dropdown on focus
+        // - Ignore when select is disabled
+        this.trigger.addEventListener('focus', ev => {
+            console.log('focus');
+
+            if (this.disabled)
+                return;
+
+            if (!this.isOpen)
+                this.open();
+
+            ev.preventDefault();
         });
     }
 
@@ -554,9 +570,10 @@ export default class VVSelect {
     /*
      * Add document event
      */
-    private addDocumentEvent(): void
+    private addDocumentEvents(): void
     {
         document.addEventListener('click', this.handleDocumentClick);
+        document.addEventListener('focusin', this.handleDocumentFocusin, true);
     }
 
     /*
@@ -565,6 +582,7 @@ export default class VVSelect {
     private removeDocumentEvent(): void
     {
         document.removeEventListener('click', this.handleDocumentClick);
+        document.removeEventListener('click', this.handleDocumentFocusin, true);
     }
 
     /*
@@ -573,6 +591,17 @@ export default class VVSelect {
     private handleDocumentClick(ev: Event): void
     {
         const target = ev.target as HTMLElement;
+
+        if (target !== this.element && !this.isDescendant(this.element, target))
+            this.close();
+    }
+
+    /*
+     * Handle document click
+     */
+    private handleDocumentFocusin(ev: Event): void
+    {
+        const target = document.activeElement as HTMLElement;
 
         if (target !== this.element && !this.isDescendant(this.element, target))
             this.close();

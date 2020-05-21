@@ -64,11 +64,12 @@ export default class VVSelect {
     private addSelectEvent;
     private addDropdownOptionsEvents;
     private addDropdownOptionEvents;
-    private addTriggerEvent;
+    private addTriggerEvents;
     private addDropdownEvents;
-    private addDocumentEvent;
+    private addDocumentEvents;
     private removeDocumentEvent;
     private handleDocumentClick;
+    private handleDocumentFocusin;
     private focusDropdownOptionByIndex;
     private focusDropdownOptionByDirection;
     private focusDropdownOptionClosestToIndex;
