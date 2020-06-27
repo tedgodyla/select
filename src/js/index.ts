@@ -20,6 +20,7 @@ interface VVSelectSettings {
     onOpen: Function;
     onClose: Function;
     onChange: Function;
+    onReset: Function;
 }
 
 enum FocusDirection {
@@ -69,6 +70,7 @@ export default class VVSelect {
         onOpen: () => {},
         onClose: () => {},
         onChange: () => {},
+        onReset: () => {},
     }
 
     /** ----------------------------------------
@@ -170,6 +172,14 @@ export default class VVSelect {
     set onChange(fn: Function)
     {
         this.settings.onChange = fn;
+    }
+
+    /*
+     * Set on reset function
+     */
+    set onReset(fn: Function)
+    {
+        this.settings.onReset = fn;
     }
 
     /*
@@ -428,6 +438,8 @@ export default class VVSelect {
             this.options.forEach(option => {
                 option.selected = !(option.value);
             });
+
+            this.settings.onReset();
 
             this.select.dispatchEvent(new Event('change'));
         });

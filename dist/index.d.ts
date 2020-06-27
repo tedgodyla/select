@@ -17,6 +17,7 @@ interface VVSelectSettings {
     onOpen: Function;
     onClose: Function;
     onChange: Function;
+    onReset: Function;
 }
 export default class VVSelect {
     private element;
@@ -46,6 +47,7 @@ export default class VVSelect {
     set value(values: Array<string> | string);
     set onInitialize(fn: Function);
     set onChange(fn: Function);
+    set onReset(fn: Function);
     set onOpen(fn: Function);
     set onClose(fn: Function);
     open(): void;

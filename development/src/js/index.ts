@@ -28,6 +28,7 @@ const testMultiSelect: Function = () => {
 
     select.onInitialize = () => addStatusChange('initialized', select, multiStatusEl);
     select.onChange = () => addStatusChange('changed', select, multiStatusEl);
+    select.onReset = () => addStatusChange('reset', select, multiStatusEl);
     select.onOpen = () => addStatusChange('opened', select, multiStatusEl);
     select.onClose = () => addStatusChange('closed', select, multiStatusEl);
 
@@ -55,6 +56,7 @@ const testSingleSelect: Function = () => {
 
     select.onInitialize = () => addStatusChange('initialized', select, singleStatusEl);
     select.onChange = () => addStatusChange('changed', select, singleStatusEl);
+    select.onReset = () => addStatusChange('reset', select, singleStatusEl);
     select.onOpen = () => addStatusChange('opened', select, singleStatusEl);
     select.onClose = () => addStatusChange('closed', select, singleStatusEl);
 
