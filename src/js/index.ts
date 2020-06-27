@@ -119,6 +119,7 @@ export default class VVSelect {
                 this.trigger.click();
         }
 
+        this.addResetEvent();
         this.addSelectEvent();
         this.updateTriggerText();
         this.createSelectObserver();
@@ -413,6 +414,22 @@ export default class VVSelect {
                 this.updateDropdownOptions();
 
             this.settings.onChange();
+        });
+    }
+
+    /*
+     * Add reset event
+     */
+    private addResetEvent(): void
+    {
+        // - Unselect options
+        // - Trigger select change event
+        this.element.addEventListener('reset', () => {
+            this.options.forEach(option => {
+                option.selected = !(option.value);
+            });
+
+            this.select.dispatchEvent(new Event('change'));
         });
     }
 

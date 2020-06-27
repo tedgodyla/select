@@ -6,6 +6,8 @@ const singleSelectEl: HTMLElement = document.querySelector('#singleSelect');
 const multiStatusEl: HTMLElement = document.querySelector('#multiStatus');
 const singleStatusEl: HTMLElement = document.querySelector('#singleStatus');
 
+const resetEl: HTMLElement = document.querySelector('#reset');
+
 // Add status change to DOM
 const addStatusChange: Function = (status: string, select, statusEl: HTMLElement) => {
     const div = document.createElement('div');
@@ -79,3 +81,8 @@ const testSingleSelect: Function = () => {
 
 testMultiSelect();
 testSingleSelect();
+
+resetEl.addEventListener('click', (ev) => {
+    multiSelectEl.dispatchEvent(new Event('reset'));
+    singleSelectEl.dispatchEvent(new Event('reset'));
+});

@@ -62,6 +62,7 @@ export default class VVSelect {
     private updateDropdownOption;
     private updateDropdownOptGroup;
     private addSelectEvent;
+    private addResetEvent;
     private addDropdownOptionsEvents;
     private addDropdownOptionEvents;
     private addTriggerEvents;
