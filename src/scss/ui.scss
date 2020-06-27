@@ -12,7 +12,6 @@
     padding: 0.25em 0;
     border: #ccc solid 1px;
     border-radius: 0.25em;
-    top: calc(100% - 1px);
     box-sizing: border-box;
   }
 
@@ -53,6 +52,20 @@
       &::before {
         opacity: 1;
       }
+    }
+  }
+
+  &.is-reverse {
+    .select__dropdown {
+      top: 1px;
+      transform: translateY(-100%);
+    }
+  }
+
+  &:not(.is-reverse) {
+    .select__dropdown {
+      top: 100%;
+      transform: translateY(-1px);
     }
   }
 }

@@ -25,7 +25,6 @@
     background: #fff;
     display: none;
     position: absolute;
-    top: 100%;
     z-index: 3;
     overflow: auto;
     box-sizing: border-box; }
@@ -50,5 +49,11 @@
       user-select: none; }
   .select.is-open .select__dropdown {
     display: block; }
+  .select.is-reverse .select__dropdown {
+    top: 0;
+    transform: translateY(-100%); }
+  .select:not(.is-reverse) .select__dropdown {
+    top: 100%;
+    transform: initial; }
 
 /*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJpbmRleC5jc3MiLCJzb3VyY2VSb290IjoiIn0=*/

@@ -30,7 +30,6 @@
     background: #fff;
     display: none;
     position: absolute;
-    top: 100%;
     z-index: 3;
     overflow: auto;
     box-sizing: border-box;
@@ -68,6 +67,20 @@
   &.is-open {
     .select__dropdown {
       display: block;
+    }
+  }
+
+  &.is-reverse {
+    .select__dropdown {
+      top: 0;
+      transform: translateY(-100%);
+    }
+  }
+
+  &:not(.is-reverse) {
+    .select__dropdown {
+      top: 100%;
+      transform: initial;
     }
   }
 }

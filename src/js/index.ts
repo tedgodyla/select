@@ -12,6 +12,7 @@ interface VVSelectSettings {
     dropdownOptGroupClass: string;
     dropdownOptGroupLabelClass: string;
     openClass: string;
+    reverseClass: string;
     multipleSelectedFormat: string;
     multipleFormat: string;
     singleSelectedFormat: string;
@@ -62,6 +63,7 @@ export default class VVSelect {
         dropdownOptGroupClass: 'select__dropdown-optgroup',
         dropdownOptGroupLabelClass: 'select__dropdown-optgroup-label',
         openClass: 'is-open',
+        reverseClass: 'is-reverse',
         multipleSelectedFormat: "%s selected",
         multipleFormat: "Select options",
         singleSelectedFormat: "%s",
@@ -211,8 +213,9 @@ export default class VVSelect {
 
         this.element.classList.add(this.settings['openClass']);
 
+        this.updateDropdownDirection();
+        
         const focusIndex = this.getSelectedOptions().length ? this.getSelectedOptions()[0].index : 0;
-
         this.focusDropdownOptionClosestToIndex(focusIndex);
 
         this.addDocumentEvents();
@@ -422,6 +425,21 @@ export default class VVSelect {
                     dropdownOptGroup.dataset[prop] = optGroup[prop];
             }
         });
+    }
+
+    /**
+     * Update dropdown direction
+     */
+    private updateDropdownDirection(): void 
+    {
+        const elementRect = this.element.getBoundingClientRect();
+        const dropdownRect = this.dropdown.getBoundingClientRect();
+
+        if (elementRect.bottom + dropdownRect.height > window.innerHeight) {
+            this.element.classList.add(this.settings['reverseClass']);
+        } else {
+            this.element.classList.remove(this.settings['reverseClass']);
+        }
     }
 
     /** ----------------------------------------
