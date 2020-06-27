@@ -286,7 +286,7 @@ export default class VVSelect {
     {
         const dropdownOption = document.createElement('a') as HTMLAnchorElement;
 
-        dropdownOption.tabIndex = 0;
+        dropdownOption.tabIndex = -1;
         dropdownOption.href = 'javascript:;';
 
         if (this.settings['dropdownOptionClass'])
@@ -383,8 +383,6 @@ export default class VVSelect {
                     dropdownOption.dataset[prop] = option[prop];
             }
         });
-
-        dropdownOption.tabIndex = (option.disabled) ? -1 : 0;
 
         // Update text
         if (dropdownOption.textContent !== option.textContent)
@@ -489,26 +487,25 @@ export default class VVSelect {
     {
         // - Open/close dropdown on mousedown
         // - Ignore when select is disabled
-        // - PreventDefault prevents focus event from being triggered
-        this.trigger.addEventListener('mousedown', ev => {
+        this.trigger.addEventListener('click', ev => {
             if (this.disabled) 
-                return;
+                return undefined;
             
             (this.isOpen) ? this.close() : this.open();
 
             ev.preventDefault();
         });
 
-        // - Open dropdown on focus
-        // - Ignore when select is disabled
-        this.trigger.addEventListener('focus', ev => {
-            console.log('focus');
+        // - Open/close dropdown on up and down keys when trigger is focused
+        this.trigger.addEventListener('keydown', ev => {
+            if (this.disabled) 
+                return undefined;
 
-            if (this.disabled)
-                return;
-
-            if (!this.isOpen)
-                this.open();
+            if (ev.keyCode !== 38 && ev.keyCode !== 40) { // up and down
+                return undefined;
+            }
+            
+            (this.isOpen) ? this.close() : this.open();
 
             ev.preventDefault();
         });
