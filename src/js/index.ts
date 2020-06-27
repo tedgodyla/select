@@ -211,7 +211,9 @@ export default class VVSelect {
 
         this.element.classList.add(this.settings['openClass']);
 
-        this.focusDropdownOptionClosestToIndex(0);
+        const focusIndex = this.getSelectedOptions().length ? this.getSelectedOptions()[0].index : 0;
+
+        this.focusDropdownOptionClosestToIndex(focusIndex);
 
         this.addDocumentEvents();
 
