@@ -35,6 +35,9 @@
       -ms-overflow-style: none; }
   .select__dropdown-optgroup-label {
     opacity: 0.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: default;
     user-select: none; }
   .select__dropdown-option {
