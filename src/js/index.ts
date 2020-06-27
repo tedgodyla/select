@@ -403,11 +403,25 @@ export default class VVSelect {
     }
 
     /*
-     * Update given dropdown option node
+     * Update given dropdown opt group node
      */
     private updateDropdownOptGroup(dropdownOptGroup: HTMLDivElement): void
     {
-        
+        const optGroup = this.dropdownOptGroupsMap.get(dropdownOptGroup);
+
+        // Update data attribute
+        const propsToDataset = ['disabled', 'label'];
+        propsToDataset.forEach(prop => {
+            if (typeof optGroup[prop] === 'boolean') {
+                if (optGroup[prop])
+                    dropdownOptGroup.dataset[prop] = '';
+                else
+                    delete dropdownOptGroup.dataset[prop];
+            } else {
+                if (dropdownOptGroup.dataset[prop] !== optGroup[prop])
+                    dropdownOptGroup.dataset[prop] = optGroup[prop];
+            }
+        });
     }
 
     /** ----------------------------------------
@@ -816,23 +830,27 @@ export default class VVSelect {
 
                     // Handle removed option node
                     Array.from(mutation.removedNodes).filter(node => node.nodeName === 'OPTGROUP').forEach(optGroupNode => {
-                        const optGroup = optGroupNode as HTMLOptGroupElement;
-
-                        if (this.useDropdown) 
+                        if (this.useDropdown) {
+                            const optGroup = optGroupNode as HTMLOptGroupElement;
                             this.removeDropdownOptGroupNode(optGroup as HTMLOptionElement);
+                        }
                     });
                 }
 
                 if (mutation.type === 'attributes' && mutation.target.nodeName === 'OPTION') {
-                    const option = mutation.target as HTMLOptionElement;
-                    const dropdownOption = this.getDropdownOptionFromMap(option);
-                    this.updateDropdownOption(dropdownOption);
+                    if (this.useDropdown) {
+                        const option = mutation.target as HTMLOptionElement;
+                        const dropdownOption = this.getDropdownOptionFromMap(option);
+                        this.updateDropdownOption(dropdownOption);
+                    }
                 }
 
                 if (mutation.type === 'attributes' && mutation.target.nodeName === 'OPTGROUP') {
-                    const optGroup = mutation.target as HTMLOptGroupElement;
-                    const dropdownOptGroup = this.getDropdownOptGroupFromMap(optGroup);
-                    this.updateDropdownOptGroup(dropdownOptGroup);
+                    if (this.useDropdown) {
+                        const optGroup = mutation.target as HTMLOptGroupElement;
+                        const dropdownOptGroup = this.getDropdownOptGroupFromMap(optGroup);
+                        this.updateDropdownOptGroup(dropdownOptGroup);
+                    }
                 }
             });    
         });
