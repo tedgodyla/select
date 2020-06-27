@@ -695,7 +695,7 @@ export default class VVSelect {
             if (document.activeElement === dropdownOption) {
                 let nextIndex = index + focusDirection;
 
-                while (typeof this.dropdownOptions[nextIndex] !== undefined) {
+                while (this.dropdownOptions[nextIndex] !== undefined) {
                     const nextOption = this.dropdownOptionsMap.get(this.dropdownOptions[nextIndex]);
                     
                     if (nextOption.disabled) {
