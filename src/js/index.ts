@@ -1,12 +1,12 @@
 /*!
- * VVSelect
+ * StylableSelect
  * (c) 2020 Ted Godyla
  * Released under the ISC license
  */
 
 import { isMobile } from 'is-mobile';
 
-interface VVSelectSettings {
+interface StylableSelectSettings {
     dropdownClass: string;
     dropdownOptionClass: string;
     dropdownOptGroupClass: string;
@@ -29,7 +29,7 @@ enum FocusDirection {
     next = 1,
 }
 
-export default class VVSelect {
+export default class StylableSelect {
 
     /** ----------------------------------------
         Variables
@@ -55,9 +55,9 @@ export default class VVSelect {
     private keydown: boolean = false;
     private initialized: boolean = false;
 
-    private settings: VVSelectSettings;
+    private settings: StylableSelectSettings;
     
-    readonly defaultSettings: VVSelectSettings = {
+    readonly defaultSettings: StylableSelectSettings = {
         dropdownClass: 'select__dropdown',
         dropdownOptionClass: 'select__dropdown-option',
         dropdownOptGroupClass: 'select__dropdown-optgroup',

@@ -1,9 +1,9 @@
 /*!
- * VVSelect
+ * StylableSelect
  * (c) 2020 Ted Godyla
  * Released under the ISC license
  */
-interface VVSelectSettings {
+interface StylableSelectSettings {
     dropdownClass: string;
     dropdownOptionClass: string;
     dropdownOptGroupClass: string;
@@ -20,7 +20,7 @@ interface VVSelectSettings {
     onChange: Function;
     onReset: Function;
 }
-export default class VVSelect {
+export default class StylableSelect {
     private element;
     private trigger;
     private select;
@@ -41,7 +41,7 @@ export default class VVSelect {
     private keydown;
     private initialized;
     private settings;
-    readonly defaultSettings: VVSelectSettings;
+    readonly defaultSettings: StylableSelectSettings;
     constructor(element: HTMLElement, settings?: object, initializeOnConstruct?: boolean);
     init(): void;
     get value(): Array<string> | string;

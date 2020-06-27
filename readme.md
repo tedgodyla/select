@@ -1,65 +1,105 @@
-## Before install
+# Stylable select
+Stylable select is a module that mimics the behavior of the native select as much as possible.
 
-1. make sure the github registry is set in the `.npmrc` file
-
-```
-@tedgodyla:registry=https://npm.pkg.github.com
-```
-
-2. Make sure you have a personal github oath token: [get it here](https://github.com/settings/tokens)
-
-3. Login into npm
-```bash
-npm login --registry=https://npm.pkg.github.com
-```
+## Features
+- single and multi select
+- optgroup supported
+- navigate with arrows and tabs
+- navigate by typing, matching option will be focussed
+- open/close dropdown with enter/esc keys
+- formatting text zero and selected states for single and multi select
+- reset event to reset select values
+- adding/remove/updating select options in DOM will update the dropdown
 
 ## Usage
 
 ```js
-import VVSelect from 'tedgodyla@select';
+import StylableSelect from 'stylable-select';
 
-const selectElems = document.querySelectorAll('.select')
+for (const selectEl of document.querySelectorAll('.select')) {
+    new StylableSelect(selectEl);
+}
+```
 
-[...selectElems].forEach(selectEl => {
-    new VVSelect(selectEl);
+```html
+<div class="select">
+    <a class="select__trigger" href="javascript:;">...</a>
+    <select class="select__select">
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
+        <option value="opel">Opel</option>
+        <option value="audi">Audi</option>
+    </select>
+</div>
+```
+
+##### Multiselect
+```html
+<div class="select">
+    <a class="select__trigger" href="javascript:;">...</a>
+    <select class="select__select" multiple>
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
+        <option value="opel">Opel</option>
+        <option value="audi">Audi</option>
+    </select>
+</div>
+```
+
+##### Optgroups
+```html
+<div class="select">
+    <a class="select__trigger" href="javascript:;">...</a>
+    <select class="select__select">
+        <optgroup label="Swedish Cars">
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+        </optgroup>
+        <optgroup label="German Cars">
+            <option value="mercedes">Mercedes</option>
+            <option value="audi">Audi</option>
+        </optgroup>
+    </select>
+</div>
+```
+
+##### Reset
+```js
+document.querySelector('#reset').addEventListener('click', (ev) => {
+    document.querySelector('#select').dispatchEvent(new Event('reset'));
 });
 ```
 
 ## Options
-TODO
 
 ```js
-new VVSelect(element, {
-    // dropdown class
+new StylableSelect(element, {
     dropdownClass: 'select__dropdown',
-
-    // open class
+    dropdownOptionClass: 'select__dropdown-option',
+    dropdownOptGroupClass: 'select__dropdown-optgroup',
+    dropdownOptGroupLabelClass: 'select__dropdown-optgroup-label',
     openClass: 'is-open',
-
-    // label format for multi select with selected values
-    multipleSelectedFormat: "%s geselecteerd",
-
-    // label format for multi select without selectes values
-    multipleFormat: "Selecteer opties",   
-
-    // label format for single select with selected value
+    reverseClass: 'is-reverse',
+    multipleSelectedFormat: "%s selected",
+    multipleFormat: "Select options",
     singleSelectedFormat: "%s",
-
-    // label format for single select without selected value
-    singleFormat: "Maak een keuze",                 
+    singleFormat: "Choose an option",
+    onInitialize: () => {},
+    onOpen: () => {},
+    onClose: () => {},
+    onChange: () => {},
+    onReset: () => {},
 });
 ```
 
 ## Methods
 
 ##### Open dropdown
-
 ```js
 select.open();
 ```
 
 ##### Close dropdown
-
 ```js
 select.close();
 ```
@@ -96,6 +136,12 @@ select.onOpen = () => console.log('opened');
 
 ```js
 select.onClose = () => console.log('closed');
+```
+
+##### set reset callback
+
+```js
+select.onReset = () => console.log('reset');
 ```
 
 ## Getters

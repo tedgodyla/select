@@ -1,4 +1,4 @@
-import VVSelect from 'scripts/index';
+import StylableSelect from 'scripts/index';
 
 const multiSelectEl: HTMLElement = document.querySelector('#multiSelect');
 const singleSelectEl: HTMLElement = document.querySelector('#singleSelect');
@@ -21,7 +21,7 @@ const addStatusChange: Function = (status: string, select, statusEl: HTMLElement
 
 // Test multi select
 const testMultiSelect: Function = () => {
-    const select = new VVSelect(multiSelectEl, {
+    const select = new StylableSelect(multiSelectEl, {
         multipleSelectedFormat: "%s geselecteerd",
         multipleFormat: "Selecteer opties",
     }, false);
@@ -49,7 +49,7 @@ const testMultiSelect: Function = () => {
 
 // Test single select
 const testSingleSelect: Function = () => {
-    const select = new VVSelect(singleSelectEl, {
+    const select = new StylableSelect(singleSelectEl, {
         singleSelectedFormat: "%s",
         singleFormat: "Kies een optie",
     }, false);
